@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/d4mr/adcast/podcast"
 )
 
 func StartServer(mediaDir string) {
@@ -28,6 +32,14 @@ func StartServer(mediaDir string) {
 	}
 
 	fmt.Println("Server starting on port ", port)
+
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-signalChan
+		podcast.CleanupCache()
+		os.Exit(0)
+	}()
 
 	err = http.ListenAndServe(":"+port, mux)
 	if err != nil {

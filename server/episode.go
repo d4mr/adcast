@@ -4,23 +4,9 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+
+	. "github.com/d4mr/adcast/podcast"
 )
-
-type Podcast struct {
-	MediaDir        string
-	PodcastEpisodes PodcastEpisodes
-}
-
-type PodcastEpisodes map[string]PodcastEpisode
-
-type PodcastEpisode struct {
-	Title      string
-	Partitions []string
-	Ads        []string
-}
-
-// type Partition string
-// type Ad string
 
 func ScanMediaDir(mediaDir string) (*Podcast, error) {
 	// Open the directory
