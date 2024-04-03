@@ -24,7 +24,12 @@ func StartServer(mediaDir string) {
 
 	fmt.Println("Server starting on port 8080")
 
-	err = http.ListenAndServe(":8080", mux)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	err = http.ListenAndServe(":"+port, mux)
 	if err != nil {
 		fmt.Println("Error starting server: ", err)
 	}
