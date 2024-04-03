@@ -36,6 +36,7 @@ To start the server run
 adcast server -m [path to media directory]
 ```
 Then navigate to `localhost:8080/episodes/[episode_name]` to view the episode with ads embedded.
+An example media directory is provided in the `example` directory. Content is from the [Creative Commons](https://creativecommons.org/) licensed [Sprite Fight](https://studio.blender.org/films/sprite-fright/) Blender Foundation movie.
 
 ## How it works
 Ad order is randomised and ads are inserted between partitions. Partitions are created using `ffmpeg`, with a command like:
