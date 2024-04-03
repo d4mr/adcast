@@ -14,7 +14,7 @@ import (
 var (
 	cacheDir      = filepath.Join(os.TempDir(), "video-cache")
 	cacheMutex    sync.Mutex
-	cacheMaxItems = 10
+	cacheMaxItems = 7
 )
 
 func init() {
