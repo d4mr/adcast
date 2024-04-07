@@ -36,9 +36,9 @@ func SetProgressiveEpisodeHeaders(w http.ResponseWriter, episode *ProgressiveEpi
 func GetVideoFiles(podcast *Podcast, episode *ProgressiveEpisode, randomisedAds []string) []string {
 	var videoFiles []string
 	for idx, partition := range episode.Partitions {
-		videoFiles = append(videoFiles, filepath.Join(podcast.MediaDir, episode.Title, "partitions", partition))
+		videoFiles = append(videoFiles, filepath.Join(podcast.MediaDir, "progressive", episode.Title, "partitions", partition))
 		if idx < len(episode.Ads) {
-			videoFiles = append(videoFiles, filepath.Join(podcast.MediaDir, episode.Title, "ads", randomisedAds[idx]))
+			videoFiles = append(videoFiles, filepath.Join(podcast.MediaDir, "progressive", episode.Title, "ads", randomisedAds[idx]))
 		}
 	}
 	return videoFiles
