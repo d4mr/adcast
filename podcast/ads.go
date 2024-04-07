@@ -34,8 +34,10 @@ func GetRandomizedAds[T any](ads []T, r *http.Request) ([]T, int64) {
 
 func SetSeedCookie(w http.ResponseWriter, randSeed int64) {
 	http.SetCookie(w, &http.Cookie{
-		Name:  "seed",
-		Value: fmt.Sprintf("%d", randSeed),
-		Path:  "/",
+		Name:     "seed",
+		Value:    fmt.Sprintf("%d", randSeed),
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	})
 }
