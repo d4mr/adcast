@@ -7,9 +7,9 @@ import (
 	"strconv"
 )
 
-func GetRandomizedAds(episode *PodcastEpisode, r *http.Request) ([]string, int64) {
-	randomisedAds := make([]string, len(episode.Ads))
-	copy(randomisedAds, episode.Ads)
+func GetRandomizedAds[T any](ads []T, r *http.Request) ([]T, int64) {
+	randomisedAds := make([]T, len(ads))
+	copy(randomisedAds, ads)
 	randSeed := rand.Int63()
 
 	seedCookie, err := r.Cookie("seed")

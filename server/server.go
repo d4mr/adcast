@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/d4mr/adcast/podcast"
@@ -15,15 +16,28 @@ func StartServer(mediaDir string) {
 
 	mux.HandleFunc("/health", healthCheck)
 
-	episodes, err := ScanMediaDir(mediaDir)
+	p, err := ScanMediaDir(filepath.Join(mediaDir))
+
 	if err != nil {
 		fmt.Println("Error scanning media directory: ", err)
 		os.Exit(1)
 	}
 
-	fmt.Println("Loaded episodes:", episodes)
+	fmt.Printf("Loaded %d progressive episodes:\n", len(p.ProgressiveEpisodes))
 
-	mux.HandleFunc("GET /episodes/{title}", ServeEpisode(episodes))
+	for _, episode := range p.ProgressiveEpisodes {
+		fmt.Println(episode)
+	}
+
+	fmt.Printf("\nLoaded %d hls episodes:\n", len(p.HlsEpisodes))
+
+	for _, episode := range p.HlsEpisodes {
+		fmt.Println(episode)
+	}
+
+	mux.HandleFunc("GET /progressive/episodes/{title}", ServeProgressiveEpisode(p))
+	mux.HandleFunc("GET /hls/episodes/{title}", ServeHlsEpisode(p))
+
 	mux.HandleFunc("/clear-seed", ClearSeed)
 
 	port := os.Getenv("PORT")
@@ -31,7 +45,7 @@ func StartServer(mediaDir string) {
 		port = "8080"
 	}
 
-	fmt.Println("Server starting on port ", port)
+	fmt.Println("\n\nServer starting on port ", port)
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)

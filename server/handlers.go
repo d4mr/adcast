@@ -1,24 +1,25 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	. "github.com/d4mr/adcast/podcast"
 )
 
-func ServeEpisode(podcast *Podcast) http.HandlerFunc {
+func ServeProgressiveEpisode(podcast *Podcast) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		title := r.PathValue("title")
-		episode, err := GetEpisode(podcast, title)
+		episode, err := GetProgressiveEpisode(podcast, title)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
 
-		SetEpisodeHeaders(w, episode)
+		SetProgressiveEpisodeHeaders(w, episode)
 
-		randomisedAds, randSeed := GetRandomizedAds(episode, r)
+		randomisedAds, randSeed := GetRandomizedAds(episode.Ads, r)
 		SetSeedCookie(w, randSeed)
 
 		videoFiles := GetVideoFiles(podcast, episode, randomisedAds)
@@ -36,6 +37,34 @@ func ServeEpisode(podcast *Podcast) http.HandlerFunc {
 		}
 
 		ServeVideo(w, r, videoPath)
+	}
+}
+
+func ServeHlsEpisode(podcast *Podcast) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		title := r.PathValue("title")
+		episode, err := GetHlsEpisode(podcast, title)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			fmt.Println(err)
+			return
+		}
+
+		SetHlsEpisodeHeaders(w, episode)
+
+		randomisedAds, randSeed := GetRandomizedAds(episode.Ads, r)
+		SetSeedCookie(w, randSeed)
+
+		playlist, err := GeneratePlaylist(episode, randomisedAds)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			fmt.Println(err)
+			return
+		}
+
+		ServeManifest(w, playlist.Encode())
 	}
 }
 

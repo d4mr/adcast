@@ -6,33 +6,34 @@ import (
 	"path/filepath"
 )
 
-type Podcast struct {
-	MediaDir        string
-	PodcastEpisodes PodcastEpisodes
-}
-
-type PodcastEpisodes map[string]PodcastEpisode
-
-type PodcastEpisode struct {
+type ProgressiveEpisode struct {
 	Title      string
 	Partitions []string
 	Ads        []string
 }
 
-func GetEpisode(podcast *Podcast, title string) (*PodcastEpisode, error) {
-	episode, ok := podcast.PodcastEpisodes[title]
+func (p ProgressiveEpisode) String() string {
+	var str string
+	str += fmt.Sprintf("Title: %s\t", p.Title)
+	str += fmt.Sprintf("%d Episode Partitions\t", len(p.Partitions))
+	str += fmt.Sprintf("%d Ads", len(p.Ads))
+	return str
+}
+
+func GetProgressiveEpisode(podcast *Podcast, title string) (*ProgressiveEpisode, error) {
+	episode, ok := podcast.ProgressiveEpisodes[title]
 	if !ok {
 		return nil, fmt.Errorf("episode not found")
 	}
 	return &episode, nil
 }
 
-func SetEpisodeHeaders(w http.ResponseWriter, episode *PodcastEpisode) {
+func SetProgressiveEpisodeHeaders(w http.ResponseWriter, episode *ProgressiveEpisode) {
 	w.Header().Set("Content-Type", "video/mp4")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s.mp4\"", episode.Title))
 }
 
-func GetVideoFiles(podcast *Podcast, episode *PodcastEpisode, randomisedAds []string) []string {
+func GetVideoFiles(podcast *Podcast, episode *ProgressiveEpisode, randomisedAds []string) []string {
 	var videoFiles []string
 	for idx, partition := range episode.Partitions {
 		videoFiles = append(videoFiles, filepath.Join(podcast.MediaDir, episode.Title, "partitions", partition))
