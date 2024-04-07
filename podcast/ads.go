@@ -36,8 +36,16 @@ func SetSeedCookie(w http.ResponseWriter, randSeed int64) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "seed",
 		Value:    fmt.Sprintf("%d", randSeed),
+		Domain:   "adcast.fly.dev",
 		Path:     "/",
 		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:   "test-cookie",
+		Value:  fmt.Sprintf("%d", randSeed),
+		Domain: "adcast.fly.dev",
+		Path:   "/",
 	})
 }
