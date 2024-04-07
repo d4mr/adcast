@@ -4,46 +4,51 @@ import (
 	"fmt"
 	"net/http"
 
-	. "github.com/d4mr/adcast/podcast"
+	"github.com/d4mr/adcast/podcast"
 )
 
-func ServeProgressiveEpisode(podcast *Podcast) http.HandlerFunc {
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
+func ServeProgressiveEpisode(p *podcast.Podcast) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		title := r.PathValue("title")
-		episode, err := GetProgressiveEpisode(podcast, title)
+		episode, err := podcast.GetProgressiveEpisode(p, title)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
 
-		SetProgressiveEpisodeHeaders(w, episode)
+		podcast.SetProgressiveEpisodeHeaders(w, episode)
 
-		randomisedAds, randSeed := GetRandomizedAds(episode.Ads, r)
-		SetSeedCookie(w, randSeed)
+		randomisedAds, randSeed := podcast.GetRandomizedAds(episode.Ads, r)
+		podcast.SetSeedCookie(w, randSeed)
 
-		videoFiles := GetVideoFiles(podcast, episode, randomisedAds)
+		videoFiles := podcast.GetVideoFiles(p, episode, randomisedAds)
 
-		fileListPath, err := CreateFileList(videoFiles)
+		fileListPath, err := podcast.CreateFileList(videoFiles)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		videoPath, err := RenderVideo(fileListPath, randSeed)
+		videoPath, err := podcast.RenderVideo(fileListPath, randSeed)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		ServeVideo(w, r, videoPath)
+		enableCors(&w)
+		podcast.ServeVideo(w, r, videoPath)
 	}
 }
 
-func ServeHlsEpisode(podcast *Podcast) http.HandlerFunc {
+func ServeHlsEpisode(p *podcast.Podcast) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		title := r.PathValue("title")
-		episode, err := GetHlsEpisode(podcast, title)
+		episode, err := podcast.GetHlsEpisode(p, title)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
@@ -51,12 +56,12 @@ func ServeHlsEpisode(podcast *Podcast) http.HandlerFunc {
 			return
 		}
 
-		SetHlsEpisodeHeaders(w, episode)
+		podcast.SetHlsEpisodeHeaders(w, episode)
 
-		randomisedAds, randSeed := GetRandomizedAds(episode.Ads, r)
-		SetSeedCookie(w, randSeed)
+		randomisedAds, randSeed := podcast.GetRandomizedAds(episode.Ads, r)
+		podcast.SetSeedCookie(w, randSeed)
 
-		playlist, err := GeneratePlaylist(episode, randomisedAds)
+		playlist, err := podcast.GeneratePlaylist(episode, randomisedAds)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -64,7 +69,8 @@ func ServeHlsEpisode(podcast *Podcast) http.HandlerFunc {
 			return
 		}
 
-		ServeManifest(w, playlist.Encode())
+		enableCors(&w)
+		podcast.ServeManifest(w, playlist.Encode())
 	}
 }
 
