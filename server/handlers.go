@@ -9,7 +9,7 @@ import (
 
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Crendentials", "true")
+	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
 }
 
 func ServeProgressiveEpisode(p *podcast.Podcast) http.HandlerFunc {
