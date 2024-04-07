@@ -110,6 +110,8 @@ func GeneratePlaylist(episode *HlsEpisode, randomisedAds []*m3u8.MediaPlaylist) 
 		seek += segment.Duration
 	}
 
+	generatedPlaylist.Close()
+
 	return generatedPlaylist, nil
 }
 
