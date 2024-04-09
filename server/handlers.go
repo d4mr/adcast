@@ -77,10 +77,13 @@ func ServeHlsEpisode(p *podcast.Podcast) http.HandlerFunc {
 
 func ClearSeed(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
-		Name:   "seed",
-		Value:  "deleted",
-		MaxAge: -1,
-		Path:   "/",
+		Name:     "seed",
+		Value:    "deleted",
+		Domain:   "adcast.fly.dev",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+		MaxAge:   -1,
+		Path:     "/",
 	})
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Seed cleared"))
