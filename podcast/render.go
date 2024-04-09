@@ -71,8 +71,26 @@ func RenderVideo(fileListPath string, randSeed int64) (string, error) {
 	// Remove the oldest cached video if the cache exceeds the maximum limit
 	cacheItems, _ := os.ReadDir(cacheDir)
 	if len(cacheItems) > cacheMaxItems {
-		oldestVideo := cacheItems[0].Name()
-		os.Remove(filepath.Join(cacheDir, oldestVideo))
+		oldestVideo := cacheItems[0]
+
+		for _, item := range cacheItems {
+			currentOldestVideoTimeStamp, err := oldestVideo.Info()
+
+			if err != nil {
+				return "", fmt.Errorf("error getting oldest video info: %v", err)
+			}
+
+			iteratingOldestVideoTimeStamp, err := item.Info()
+			if err != nil {
+				return "", fmt.Errorf("error getting iterating video info: %v", err)
+			}
+
+			if iteratingOldestVideoTimeStamp.ModTime().Before(currentOldestVideoTimeStamp.ModTime()) {
+				oldestVideo = item
+			}
+		}
+
+		os.Remove(filepath.Join(cacheDir, oldestVideo.Name()))
 		fmt.Println("Removed oldest video from cache: ", oldestVideo)
 	}
 
